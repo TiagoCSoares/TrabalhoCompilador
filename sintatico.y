@@ -95,11 +95,11 @@ tipo
         }
     | T_INTEIRO
         { 
-            tipo = INT; 
             // TODO #1
             // Além do tipo, precisa guardar o TAM (tamanho) do
             // tipo e a POS (posição) do tipo na tabela de símbolos
             // TAM = 1
+            tipo = INT;           
             tam = 1;
             pos = 1;
         }
@@ -109,6 +109,9 @@ tipo
             // TODO #2
             // Aqui tem uma chamada de buscaSimbolo para encontrar
             // as informações de TAM e POS do registro
+            int a = buscaSimbolo(atomo);  // retorna a posição do registrador na tabela
+            pos = tabSimb[a].pos;
+            tam = tabSimb[a].tam;
         }
     ;
 
@@ -123,6 +126,8 @@ define
         {
             // TODO #3
             // Iniciar a lista de campos
+            ptno listaCampos;
+            iniciaLista(%listaCampos);
         }
     definicao_campos T_FIMDEF T_IDENTIF    
         {   
@@ -171,6 +176,13 @@ lista_variaveis
         strcpy(elemTab.id, atomo);      // elemTab.id recebe o valor de atomo
         elemTab.end = contaVar;         // o endereço diz respeito a quantas 
         elemTab.tip = tipo;
+        if(tipo == 0) {
+            elemTab.pos = tipo;
+            elemTab.tam = 1;
+        }   else if (tipo == 1) {
+            elemTab.pos = tipo;
+            elemTab.tam = 1;
+        }
         // TODO #6
         // Tem outros campos para acrescentar na tab símbolos
         insereSimbolo (elemTab);

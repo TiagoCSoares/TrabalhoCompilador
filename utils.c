@@ -1,4 +1,5 @@
 // Tabela de SImbolos
+#include <stdio.h>
 
 enum
 {
@@ -15,14 +16,23 @@ char nomeTipo[3][4] = {
 
 // criar uma estrutura e operações para manipular uma lista de campos
 
-/* Ex Luiz
+// Ex Luiz
+
 typedef struct no * ptno;
 struct no {
-    char info;
+    char id[100];   // nome do identificador   
+    int end;        // endereco
+    int tip;        // tipo
+    int tam; 
+    int pos;
     ptno prox;
 };
 
+void iniciaLista(ptno *listaCampos) {
+    *listaCampos = NULL;
+}
 
+/*
 ptno insere (ptno L, char info) {
 
     ptno p, new;
@@ -46,8 +56,6 @@ ptno busca (ptno L, char info) {
 
 
 
-
-
 #define TAM_TAB 100
 
 //acrescentar campos na tabela
@@ -57,7 +65,8 @@ struct  elemTabSimbolos
     int end;        // endereco
     int tip;        // tipo
     int tam; 
-    int pos
+    int pos;
+    struct elemTabSimbolos *prox;
     //---  campos;
 } tabSimb[TAM_TAB], elemTab;
 
@@ -97,13 +106,13 @@ void mostraTabela()
 {
     puts("Tabela de Simbolos");
     puts("------------------");
-    printf("%30s | %s | %s | %s | %s\n", "ID", "END", "TIP", "TAM", "POS");
-    for(int i = 0; i < 50; i++)
+    printf("%30s | %s | %s | %s | %s | %s\n", "ID", "END", "TIP", "TAM", "POS", "CAMPOS");
+    for(int i = 0; i < 90; i++)
         printf("-");
-    printf("\n%30s | %3s | %3s | %3s | %3s", "inteiro", " -1", "INT", "1", "0");
-    printf("\n%30s | %3s | %3s | %3s | %3s", "logico", " -1", "LOG", "1", "1");
+    printf("\n%30s | %3s | %3s | %3s | %3s |", "inteiro", " -1", "INT", "1", "0");
+    printf("\n%30s | %3s | %3s | %3s | %3s |", "logico", " -1", "LOG", "1", "1");
     for(int i = 0; i < posTab; i++)
-        printf("\n%30s | %3d | %s | %3d | %3d",  
+        printf("\n%30s | %3d | %s | %3d | %3d |",  
                 tabSimb[i].id,
                 tabSimb[i].end,
                 nomeTipo[tabSimb[i].tip],

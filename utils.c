@@ -56,8 +56,8 @@ struct  elemTabSimbolos
     char id[100];   // nome do identificador   
     int end;        // endereco
     int tip;        // tipo
-    //int tam; 
-    //int pos
+    int tam; 
+    int pos
     //---  campos;
 } tabSimb[TAM_TAB], elemTab;
 
@@ -97,14 +97,19 @@ void mostraTabela()
 {
     puts("Tabela de Simbolos");
     puts("------------------");
-    printf("%30s | %s | %s\n", "ID", "END", "TIP");
+    printf("%30s | %s | %s | %s | %s\n", "ID", "END", "TIP", "TAM", "POS");
     for(int i = 0; i < 50; i++)
         printf("-");
+    printf("\n%30s | %3s | %3s | %3s | %3s", "inteiro", " -1", "INT", "1", "0");
+    printf("\n%30s | %3s | %3s | %3s | %3s", "logico", " -1", "LOG", "1", "1");
     for(int i = 0; i < posTab; i++)
-        printf("\n%30s | %3d | %s", 
+        printf("\n%30s | %3d | %s | %3d | %3d",  
                 tabSimb[i].id,
                 tabSimb[i].end,
-                nomeTipo[tabSimb[i].tip]);
+                nomeTipo[tabSimb[i].tip],
+                tabSimb[i].tam,
+                tabSimb[i].pos
+            );
     puts("");
 }
 

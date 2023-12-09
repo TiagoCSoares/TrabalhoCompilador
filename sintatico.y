@@ -9,6 +9,8 @@ int contaVar = 0;
 int rotulo = 0;
 int ehRegistro = 0;
 int tipo;
+int tam;
+
 %}
 
 %token T_PROGRAMA
@@ -58,10 +60,11 @@ int tipo;
 %%
 
 programa
+    // Inicializa o programa, 
     : cabecalho definicoes variaveis 
         { 
-            mostraTabela();
-            empilha (contaVar);
+            mostraTabela();         // Printa a tabela, apósa declaração de todas as variáveis
+            empilha (contaVar);     // Quantidade de variáveis?
             if (contaVar)
                 fprintf(yyout, "\tAMEM\t%d\n", contaVar);
         }    
@@ -82,11 +85,13 @@ cabecalho
 tipo
     : T_LOGICO 
         { 
-            tipo = LOG; 
             // TODO #1
             // Além do tipo, precisa guardar o TAM (tamanho) do
             // tipo e a POS (posição) do tipo na tabela de símbolos
             // TAM = 1
+            tipo = LOG; 
+            tam = 1;
+            pos = 1;
         }
     | T_INTEIRO
         { 
@@ -95,6 +100,8 @@ tipo
             // Além do tipo, precisa guardar o TAM (tamanho) do
             // tipo e a POS (posição) do tipo na tabela de símbolos
             // TAM = 1
+            tam = 1;
+            pos = 1;
         }
     | T_REGISTRO T_IDENTIF
         { 
@@ -161,8 +168,8 @@ lista_variaveis
     : lista_variaveis 
     T_IDENTIF 
     { 
-        strcpy(elemTab.id, atomo);      // por id ser char?
-        elemTab.end = contaVar;
+        strcpy(elemTab.id, atomo);      // elemTab.id recebe o valor de atomo
+        elemTab.end = contaVar;         // o endereço diz respeito a quantas 
         elemTab.tip = tipo;
         // TODO #6
         // Tem outros campos para acrescentar na tab símbolos

@@ -21,10 +21,10 @@ char nomeTipo[3][4] = {
 typedef struct no * ptno;
 struct no {
     char id[100];   // nome do identificador   
-    int end;        // endereco
-    int tip;        // tipo
-    int tam; 
+    int tip;        // endereco     
     int pos;
+    int desl;
+    int tam;
     ptno prox;
 };
 
@@ -32,6 +32,20 @@ void iniciaLista(ptno *listaCampos) {
     *listaCampos = NULL;
 }
 
+
+void insereListaCampos (ptno *listaCampos, ptno aux)  { // lista é a lista de campos do reg atual, aux é o nó sendo inserido
+    if(*listaCampos == NULL) {
+        *listaCampos = aux;
+    } else {
+        ptno atual = *listaCampos;
+        while (atual->prox != NULL) {
+            atual = atual->prox;
+        }
+        atual->prox = aux;
+        aux->prox = NULL;
+    }
+    
+}  
 /*
 ptno insere (ptno L, char info) {
 
@@ -66,8 +80,7 @@ struct  elemTabSimbolos
     int tip;        // tipo
     int tam; 
     int pos;
-    struct elemTabSimbolos *prox;
-    //---  campos;
+    struct ptno * lista;        // essa posição se for um registro recebe uma estrutura de nós com os campos
 } tabSimb[TAM_TAB], elemTab;
 
 int posTab = 0;    // indica a próxima posição livre para inserção

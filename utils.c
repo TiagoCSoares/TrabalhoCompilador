@@ -18,34 +18,46 @@ char nomeTipo[3][4] = {
 
 // Ex Luiz
 
-typedef struct no * ptno;
-struct no {
+typedef struct no *ptno;
+
+typedef struct no {
     char id[100];   // nome do identificador   
     int tip;        // endereco     
     int pos;
     int desl;
     int tam;
-    ptno prox;
+    struct ptno *prox;
 };
 
-void iniciaLista(ptno *listaCampos) {
-    *listaCampos = NULL;
+
+
+void inserir(ptno listaCampos, char id[100], int tip, int pos, int desl, int tam) {
+    ptno novoNo = (ptno)malloc(sizeof(struct no));
+    ptno L = listaCampos;
+    strcpy(novoNo->id, id);
+    novoNo->tip = tip;
+    novoNo->pos = pos;
+    novoNo->desl = desl;
+    novoNo->tam = tam; 
+    novoNo->prox = NULL;
+
+    while (L && L->prox) {
+        L = L->prox;
+    }   
+    if (L) {
+        L->prox = novoNo;
+    } else {
+        listaCampos = novoNo;
+    }
+    return listaCampos;
 }
 
-
-void insereListaCampos (ptno *listaCampos, ptno aux)  { // lista é a lista de campos do reg atual, aux é o nó sendo inserido
-    if(*listaCampos == NULL) {
-        *listaCampos = aux;
-    } else {
-        ptno atual = *listaCampos;
-        while (atual->prox != NULL) {
-            atual = atual->prox;
-        }
-        atual->prox = aux;
-        aux->prox = NULL;
+ptno busca (ptno listaCampos, char id[100]) {
+    while (listaCampos && strcmp(listaCampos->id, id) != 0) {
+        listaCampos = listaCampos->prox;
     }
-    
-}  
+    return listaCampos;
+}
 /*
 ptno insere (ptno L, char info) {
 
@@ -80,7 +92,7 @@ struct  elemTabSimbolos
     int tip;        // tipo
     int tam; 
     int pos;
-    struct ptno * lista;        // essa posição se for um registro recebe uma estrutura de nós com os campos
+    ptno listaCampos;        // essa posição se for um registro recebe uma estrutura de nós com os campos
 } tabSimb[TAM_TAB], elemTab;
 
 int posTab = 0;    // indica a próxima posição livre para inserção

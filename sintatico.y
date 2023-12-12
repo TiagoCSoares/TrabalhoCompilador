@@ -12,6 +12,7 @@ int tipo;
 int tam;
 int desl;
 int pos = 2;
+ptno listaCampos;
 
 %}
 
@@ -65,7 +66,7 @@ programa
     // Inicializa o programa, 
     : cabecalho definicoes variaveis 
         { 
-            mostraTabela();         // Printa a tabela, apósa declaração de todas as variáveis
+            mostraTabela();         // Printa a tabela, após a declaração de todas as variáveis
             empilha (contaVar);     // Quantidade de variáveis?
             if (contaVar)
                 fprintf(yyout, "\tAMEM\t%d\n", contaVar);
@@ -81,7 +82,27 @@ programa
 
 cabecalho 
     : T_PROGRAMA T_IDENTIF
-        { fprintf(yyout, "\tINPP\n"); }     // escreve no arquivo após ler o cabecalho
+        { fprintf(yyout, "\tINPP\n"); 
+        
+        
+            strcpy(elemTab.id, "inteiro");
+            elemTab.tip = 0;
+            elemTab.pos = pos;
+            elemTab.end = -1;
+            elemTab.lista = NULL;
+            pos++:
+            insereSimbolo(elemTab);
+
+
+            strcpy(elemTab.id, "inteiro");
+            elemTab.tip = 1;
+            elemTab.pos = pos;
+            elemTab.end = -1;
+            elemTab.lista = NULL;
+            pos++:
+            insereSimbolo(elemTab);
+
+        }     // escreve no arquivo após ler o cabecalho
     ;
 
 tipo
@@ -128,10 +149,8 @@ define
         {
             // TODO #3
             // Iniciar a lista de campos
-            ptno listaCampos;
             iniciaLista(&listaCampos);
             desl = 0;
-
         }
     definicao_campos T_FIMDEF T_IDENTIF    
         {   
@@ -143,16 +162,16 @@ define
 
             // inserir esse novo tipo na tabela de simbolos
             // com a lista que foi montada]
-            strcpy(elemTab.id, atomo); 
-            elemTab.end = -1;
-            elemTab.tipo = 2;
-            elemTab.tam = desl;
+
+            strcpy(elemTab.id, atomo);      
+            elemTab.end = -1;         
+            elemTab.tip = REG;
             elemTab.pos = pos;
+            elemTab.tam = tam;
             pos++;
-            
             elemTab.lista = listaCampos;
-            
-            insereSimbolo (elemTab);
+            insereSimbolo(elemTab);
+            contaVar++;
         }
     ;
 
@@ -170,58 +189,51 @@ lista_campos
             // o deslocamento (endereço) do próximo campo
             // será o deslocamento anterior mais o tamanho desse campo
            
-            ptno aux;
-            strcpy(aux.id, atomo);
-            aux.tip = tipo;
+            no *aux = (no *)malloc(sizeof(no));
+            strcpy(aux->id, atomo);
+            aux->tip = tipo;
+            aux->pos = pos;
+            aux->desl = desl;
+            aux->tam = tam;
+            desl += tam; 
+            inserir(&listaCampos, aux->id, aux->tip, aux->pos, aux->desl, aux->tam);
+            
+            /*no *aux;
+            strcpy(aux->id, atomo);
+            aux->tip = tipo;
 
             if(tipo == INT) {
-                aux.pos = 0;
-                aux.tam = 1;
-                aux.desl = desl;
+                aux->pos = 0;
+                aux->tam = 1;
+                aux->desl = desl;
                 desl++;
             } else if(tipo == LOG) {
-                aux.pos = 1;
-                aux.tam = 1;
-                aux.desl = desl;
+                aux->pos = 1;
+                aux->tam = 1;
+                aux->desl = desl;
                 desl++;
             } else {
-                int a = buscaSimbolo(aux.id);
-                aux.pos = pos;          //elemTab[a].pos;
-                aux.tam = tam;          //elemTab[a].tam;
-                aux.desl = desl;
-                desl += aux.tam; 
+                pos = buscaSimbolo(atomo);
+                aux->pos = pos;          //elemTab[a].pos;
+                aux->tam = tam;         //elemTab[a].tam;
+                aux->desl = desl;
+                desl += aux->tam; 
 
             }
 
             insereListaCampos(&listaCampos, aux);
-
+            */
         }
     | T_IDENTIF
         {
-            ptno aux;
-            strcpy(aux.id, atomo);
-            aux.tip = tipo;
-
-            if(tipo == INT) {
-                aux.pos = 0;
-                aux.tam = 1;
-                aux.desl = desl;
-                desl++;
-            } else if(tipo == LOG) {
-                aux.pos = 1;
-                aux.tam = 1;
-                aux.desl = desl;
-                desl++;
-            } else {
-                int a = buscaSimbolo(aux.id);
-                aux.pos = pos;          //elemTab[a].pos;
-                aux.tam = tam;          //elemTab[a].tam;
-                aux.desl = desl;
-                desl += aux.tam; 
-
-            }
-
-            insereListaCampos(&listaCampos, aux);
+            no *aux = (no *)malloc(sizeof(no));
+            strcpy(aux->id, atomo);
+            aux->tip = tipo;
+            aux->pos = pos;
+            aux->desl = desl;
+            aux->tam = tam;
+            desl += tam; 
+            inserir(&listaCampos, aux->id, aux->tip, aux->pos, aux->desl, aux->tam);
         }
     ;
 
@@ -251,12 +263,12 @@ lista_variaveis
         }   else if (tipo == 1) {
             elemTab.pos = tipo;
             elemTab.tam = 1;
-            elemTab.lista = NULL
+            elemTab.lista = NULL;
         }   else {
             elemTab.pos = pos;
             pos++;
-            elemTab.tam = 55;
-            elemTab.lista = listaCampos;
+            elemTab.tam = tam;
+            //elemTab.lista = listaCampos;
             contaVar += tam;
             // aqui o registrado já está recebendo elemTab.id com o nome correto, devido as linhas acima
         }
@@ -274,18 +286,19 @@ lista_variaveis
             elemTab.end = contaVar;         // o endereço diz respeito a quantas posições a partir do ínicio da tabela
             elemTab.tip = tipo;
             if(tipo == 0) {
+
                 elemTab.pos = tipo;
                 elemTab.tam = 1;
                 elemTab.lista = NULL;
             }   else if (tipo == 1) {
                 elemTab.pos = tipo;
-                elemTab.tam = ;
-                elemTab.lista = NULL
+                elemTab.tam = 1;
+                elemTab.lista = NULL;
             }   else {
                 elemTab.pos = pos;
                 pos++;
                 elemTab.tam = 55;
-                elemTab.lista = listaCampos;
+                //elemTab.lista = listaCampos;
                 contaVar += tam;
                 // aqui o registrado já está recebendo elemTab.id com o nome correto, devido as linhas acima
             }
@@ -336,11 +349,11 @@ saida
     ;
 
 atribuicao          
-    : expressa_acesso                //TODO: lado esquerdo da expressão de acesso pode ser uma expressao de acesso
+    : expressao_acesso                //TODO: lado esquerdo da expressão de acesso pode ser uma expressao de acesso
         {
             int pos = buscaSimbolo(atomo);
             empilha(tam);
-            empilha(des);
+            empilha(desl);
             empilha(tipo);
         }
       T_ATRIB expressao

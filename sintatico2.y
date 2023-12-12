@@ -10,6 +10,7 @@ int rotulo = 0;
 int ehRegistro = 0;
 int tipo;
 int tamReg;
+int desReg;    //    criei a variável mas pelo jeito ela substituiu a função da variável des, tomar cuidado para não gerar erros
 int tam; // tamanho da estrutura qdo percorre expressão de acesso
 int des = 0; // deslocamento para chegar no campo
 int pos = 0; // posicao do tipo na tabela de simbolos
@@ -128,6 +129,7 @@ tipo
             int a = buscaSimbolo(atomo);
             tipo = REG; 
             tamReg += tabSimb[a].tam;
+            //desReg = tamReg;
             elemTab.tam = tabSimb[a].tam;
             elemTab.pos = tabSimb[a].pos;
         
@@ -146,6 +148,7 @@ define
    : T_DEF
         {
             tamReg = 0;
+            desReg = 0;
             // TODO #3
             // Iniciar a lista de campos
             listaCampos = NULL;
@@ -160,7 +163,7 @@ define
             elemTab.listaCampos = listaCampos;
             elemTab.tam = tamReg;
             pos++;
-            contaVar++;
+
 
             insereSimbolo (elemTab);
            // TODO #4
@@ -178,18 +181,27 @@ lista_campos
    : lista_campos T_IDENTIF
       {
         
-        char id[100];
-        strcpy(id, atomo);
-        int tip = tipo;
-        int pos = pos;
-        int des = des;
-        int tam = tam;
-        if(tipo == 0 || tipo == 1) {
+        char idL[100];
+        strcpy(idL, atomo);
+        int tipL = tipo;
+        int posL = pos;
+
+        int desL = desReg;
+        int tamL = tam;
+        if(tipo == 0 || tipo == 1){
+            posL = elemTab.pos;
+            tamL = elemTab.tam;
+            desReg++;
             tamReg++;
+            
+        } else if (tipo == 2){
+            posL = elemTab.pos;
+            tamL = elemTab.tam;
+            desReg += tamL;
         }
 
+        listaCampos = inserir(listaCampos, idL, tipL, posL, desL, tamL);
 
-        listaCampos = inserir(listaCampos, id, tip, pos, des, tam);
          // TODO #5
          // acrescentar esse campo na lista de campos que
          // esta sendo construida
@@ -198,18 +210,25 @@ lista_campos
       }
    | T_IDENTIF
       {
-        char id[100];
-        strcpy(id, atomo);
-        int tip = tipo;
-        int pos = pos;
-        int des = des;
-        int tam = tam;
-        if(tipo == 0 || tipo == 1) {
+        char idL[100];
+        strcpy(idL, atomo);
+        int tipL = tipo;
+        int posL = pos;
+
+        int desL = desReg;
+        int tamL = tam;
+        if(tipo == 0 || tipo == 1){
+            posL = elemTab.pos;
+            tamL = elemTab.tam;
+            desReg++;
             tamReg++;
+        } else if (tipo == 2){
+            posL = elemTab.pos;
+            tamL = elemTab.tam;
+            desReg += tamL;
         }
 
-
-        listaCampos = inserir(listaCampos, id, tip, pos, des, tam);
+        listaCampos = inserir(listaCampos, idL, tipL, posL, desL, tamL);
         // idem
       }
    ;
@@ -229,12 +248,18 @@ lista_variaveis
      T_IDENTIF 
         { 
             strcpy(elemTab.id, atomo);
-            elemTab.end = contaVar;
+            if(tipo == 0 || tipo == 1) {
+               elemTab.end = contaVar;
+               contaVar++;
+            } else {
+               elemTab.end = contaVar;
+               contaVar += elemTab.tam;
+            }
             elemTab.tip = tipo;
             // TODO #6
             // Tem outros campos para acrescentar na tab. símbolos
             insereSimbolo (elemTab);
-            contaVar++; 
+
             // TODO #7
             // Se a variavel for registro
             // contaVar = contaVar + TAM (tamanho do registro)
@@ -242,20 +267,17 @@ lista_variaveis
    | T_IDENTIF
        { 
             strcpy(elemTab.id, atomo);
-            elemTab.end = contaVar;
-            elemTab.tip = tipo;
-            /*if(tipo == 0) {
-                elemTab.pos = 0;
-            }   else if (tipo == 1) {
-                elemTab.pos = 1;
+            if(tipo == 0 || tipo == 1) {
+               elemTab.end = contaVar;
+               contaVar++;
             } else {
-                elemTab.pos = 55;
-                //elemTab.pos = buscaSimbolo (atomo);
-            }*/
-    
-            // idem
+               elemTab.end = contaVar;
+               contaVar += elemTab.tam;
+            }
+            elemTab.tip = tipo;
+            // TODO #6
+            // Tem outros campos para acrescentar na tab. símbolos
             insereSimbolo (elemTab);
-            contaVar++;
             // bidem 
        }
    ;

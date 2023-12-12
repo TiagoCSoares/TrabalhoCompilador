@@ -27,7 +27,7 @@ typedef struct no {
     int desl;
     int tam;
     ptno prox;
-};
+} no;
 
 
 
@@ -58,27 +58,6 @@ ptno busca (ptno listaCampos, char id[100]) {
     }
     return listaCampos;
 }
-/*
-ptno insere (ptno L, char info) {
-
-    ptno p, new;
-    new = (ptno)malloc(sizeof(struct no));
-    new -> info = info;
-    new -> prox = NULL;
-    p = L;
-    while (p && p->prox)
-        p = p->prox;
-    if(p)
-        p->prox = new;
-}
-
-ptno busca (ptno L, char info) {
-    while(L && L->info != info)
-        L = L->prox;
-    return L;
-}
-
-*/
 
 
 

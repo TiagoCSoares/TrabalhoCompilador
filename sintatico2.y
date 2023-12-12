@@ -160,6 +160,7 @@ define
             elemTab.listaCampos = listaCampos;
             elemTab.tam = tamReg;
             pos++;
+            contaVar++;
 
             insereSimbolo (elemTab);
            // TODO #4

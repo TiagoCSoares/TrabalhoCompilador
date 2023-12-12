@@ -9,6 +9,11 @@ int contaVar = 0;
 int rotulo = 0;
 int ehRegistro = 0;
 int tipo;
+int tam;
+int desl;
+int pos = 2;
+ptno listaCampos;
+
 %}
 
 %token T_PROGRAMA
@@ -58,10 +63,11 @@ int tipo;
 %%
 
 programa
+    // Inicializa o programa, 
     : cabecalho definicoes variaveis 
         { 
-            mostraTabela();
-            empilha (contaVar);
+            mostraTabela();         // Printa a tabela, após a declaração de todas as variáveis
+            empilha (contaVar);     // Quantidade de variáveis?
             if (contaVar)
                 fprintf(yyout, "\tAMEM\t%d\n", contaVar);
         }    
@@ -76,25 +82,49 @@ programa
 
 cabecalho 
     : T_PROGRAMA T_IDENTIF
-        { fprintf(yyout, "\tINPP\n"); }     // escreve no arquivo após ler o cabecalho
+        { fprintf(yyout, "\tINPP\n"); 
+        
+        
+            strcpy(elemTab.id, "inteiro");
+            elemTab.tip = 0;
+            elemTab.pos = pos;
+            elemTab.end = -1;
+            elemTab.lista = NULL;
+            pos++:
+            insereSimbolo(elemTab);
+
+
+            strcpy(elemTab.id, "inteiro");
+            elemTab.tip = 1;
+            elemTab.pos = pos;
+            elemTab.end = -1;
+            elemTab.lista = NULL;
+            pos++:
+            insereSimbolo(elemTab);
+
+        }     // escreve no arquivo após ler o cabecalho
     ;
 
 tipo
     : T_LOGICO 
         { 
-            tipo = LOG; 
             // TODO #1
             // Além do tipo, precisa guardar o TAM (tamanho) do
             // tipo e a POS (posição) do tipo na tabela de símbolos
             // TAM = 1
+            tipo = LOG; 
+            tam = 1;
+            pos = 1;
         }
     | T_INTEIRO
         { 
-            tipo = INT; 
             // TODO #1
             // Além do tipo, precisa guardar o TAM (tamanho) do
             // tipo e a POS (posição) do tipo na tabela de símbolos
             // TAM = 1
+            tipo = INT;           
+            tam = 1;
+            pos = 0;
         }
     | T_REGISTRO T_IDENTIF
         { 
@@ -102,6 +132,9 @@ tipo
             // TODO #2
             // Aqui tem uma chamada de buscaSimbolo para encontrar
             // as informações de TAM e POS do registro
+            int a = buscaSimbolo(atomo);  // retorna a posição do registrador na tabela
+            pos = tabSimb[a].pos;
+            tam = tabSimb[a].tam;
         }
     ;
 
@@ -112,16 +145,33 @@ definicoes
 
 
 define 
-    : T_DEF 
+    : T_DEF         // pra cada T_DEF é inserido um registrador diferente
         {
             // TODO #3
             // Iniciar a lista de campos
+            iniciaLista(&listaCampos);
+            desl = 0;
         }
     definicao_campos T_FIMDEF T_IDENTIF    
         {   
             //TODO #4
+            //aqui ao entrar em definicao_campos o primeiro parametro será o tipo, então já teremos ele armazenado
+            //vamos inserir na tabela, mas também na listaCampos
+            //ao printar o registrador devemos mostrar essa listaCampos
+            //definir tam do registrador após montar a listaCampos
+
             // inserir esse novo tipo na tabela de simbolos
-            // com a lista que foi montada
+            // com a lista que foi montada]
+
+            strcpy(elemTab.id, atomo);      
+            elemTab.end = -1;         
+            elemTab.tip = REG;
+            elemTab.pos = pos;
+            elemTab.tam = tam;
+            pos++;
+            elemTab.lista = listaCampos;
+            insereSimbolo(elemTab);
+            contaVar++;
         }
     ;
 
@@ -138,10 +188,52 @@ lista_campos
             // esta sendo construida
             // o deslocamento (endereço) do próximo campo
             // será o deslocamento anterior mais o tamanho desse campo
+           
+            no *aux = (no *)malloc(sizeof(no));
+            strcpy(aux->id, atomo);
+            aux->tip = tipo;
+            aux->pos = pos;
+            aux->desl = desl;
+            aux->tam = tam;
+            desl += tam; 
+            inserir(&listaCampos, aux->id, aux->tip, aux->pos, aux->desl, aux->tam);
+            
+            /*no *aux;
+            strcpy(aux->id, atomo);
+            aux->tip = tipo;
+
+            if(tipo == INT) {
+                aux->pos = 0;
+                aux->tam = 1;
+                aux->desl = desl;
+                desl++;
+            } else if(tipo == LOG) {
+                aux->pos = 1;
+                aux->tam = 1;
+                aux->desl = desl;
+                desl++;
+            } else {
+                pos = buscaSimbolo(atomo);
+                aux->pos = pos;          //elemTab[a].pos;
+                aux->tam = tam;         //elemTab[a].tam;
+                aux->desl = desl;
+                desl += aux->tam; 
+
+            }
+
+            insereListaCampos(&listaCampos, aux);
+            */
         }
     | T_IDENTIF
         {
-            // idem
+            no *aux = (no *)malloc(sizeof(no));
+            strcpy(aux->id, atomo);
+            aux->tip = tipo;
+            aux->pos = pos;
+            aux->desl = desl;
+            aux->tam = tam;
+            desl += tam; 
+            inserir(&listaCampos, aux->id, aux->tip, aux->pos, aux->desl, aux->tam);
         }
     ;
 
@@ -161,9 +253,25 @@ lista_variaveis
     : lista_variaveis 
     T_IDENTIF 
     { 
-        strcpy(elemTab.id, atomo);      // por id ser char?
-        elemTab.end = contaVar;
+        strcpy(elemTab.id, atomo);      // elemTab.id recebe o valor de atomo
+        elemTab.end = contaVar;         // o endereço diz respeito a quantas posições a partir do ínicio da tabela
         elemTab.tip = tipo;
+        if(tipo == 0) {
+            elemTab.pos = tipo;
+            elemTab.tam = 1;
+            elemTab.lista = NULL;
+        }   else if (tipo == 1) {
+            elemTab.pos = tipo;
+            elemTab.tam = 1;
+            elemTab.lista = NULL;
+        }   else {
+            elemTab.pos = pos;
+            pos++;
+            elemTab.tam = tam;
+            //elemTab.lista = listaCampos;
+            contaVar += tam;
+            // aqui o registrado já está recebendo elemTab.id com o nome correto, devido as linhas acima
+        }
         // TODO #6
         // Tem outros campos para acrescentar na tab símbolos
         insereSimbolo (elemTab);
@@ -174,13 +282,28 @@ lista_variaveis
     }
     | T_IDENTIF
         { 
-            strcpy(elemTab.id, atomo);      // por id ser char?
-            elemTab.end = contaVar;
+            strcpy(elemTab.id, atomo);      // elemTab.id recebe o valor de atomo
+            elemTab.end = contaVar;         // o endereço diz respeito a quantas posições a partir do ínicio da tabela
             elemTab.tip = tipo;
-            // idem
+            if(tipo == 0) {
+
+                elemTab.pos = tipo;
+                elemTab.tam = 1;
+                elemTab.lista = NULL;
+            }   else if (tipo == 1) {
+                elemTab.pos = tipo;
+                elemTab.tam = 1;
+                elemTab.lista = NULL;
+            }   else {
+                elemTab.pos = pos;
+                pos++;
+                elemTab.tam = 55;
+                //elemTab.lista = listaCampos;
+                contaVar += tam;
+                // aqui o registrado já está recebendo elemTab.id com o nome correto, devido as linhas acima
+            }
             insereSimbolo (elemTab);
             contaVar++;
-            // bidem 
         }
     ;
 
@@ -207,7 +330,7 @@ entrada
             int pos = buscaSimbolo (atomo);
             // TODO # 8
             // se for registro, tem que fzer uma repeticao 
-            //  do TAM do registro de letiruas
+            //  do TAM do registro de leituras
             fprintf(yyout, "\tLEIA\n"); 
             fprintf(yyout, "\tARZG\t%d\n", tabSimb[pos].end); 
         }
@@ -226,11 +349,11 @@ saida
     ;
 
 atribuicao          
-    : expressa_acesso                //TODO: lado esquerdo da expressão de acesso pode ser uma expressao de acesso
+    : expressao_acesso                //TODO: lado esquerdo da expressão de acesso pode ser uma expressao de acesso
         {
             int pos = buscaSimbolo(atomo);
             empilha(tam);
-            empilha(des);
+            empilha(desl);
             empilha(tipo);
         }
       T_ATRIB expressao

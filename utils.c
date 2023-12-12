@@ -1,4 +1,5 @@
 // Tabela de SImbolos
+#include <stdio.h>
 
 enum
 {
@@ -15,14 +16,49 @@ char nomeTipo[3][4] = {
 
 // criar uma estrutura e operações para manipular uma lista de campos
 
-/* Ex Luiz
-typedef struct no * ptno;
-struct no {
-    char info;
+// Ex Luiz
+
+typedef struct no *ptno;
+
+typedef struct no {
+    char id[100];   // nome do identificador   
+    int tip;        // endereco     
+    int pos;
+    int desl;
+    int tam;
     ptno prox;
 };
 
 
+
+ptno inserir(ptno listaCampos, char id[100], int tip, int pos, int desl, int tam) {
+    ptno novoNo = (ptno)malloc(sizeof(struct no));
+    ptno L = listaCampos;
+    strcpy(novoNo->id, id);
+    novoNo->tip = tip;
+    novoNo->pos = pos;
+    novoNo->desl = desl;
+    novoNo->tam = tam; 
+    novoNo->prox = NULL;
+
+    while (L && L->prox) {
+        L = L->prox;
+    }   
+    if (L) {
+        L->prox = novoNo;
+    } else {
+        listaCampos = novoNo;
+    }
+    return listaCampos;
+}
+
+ptno busca (ptno listaCampos, char id[100]) {
+    while (listaCampos && strcmp(listaCampos->id, id) != 0) {
+        listaCampos = listaCampos->prox;
+    }
+    return listaCampos;
+}
+/*
 ptno insere (ptno L, char info) {
 
     ptno p, new;
@@ -46,19 +82,17 @@ ptno busca (ptno L, char info) {
 
 
 
-
-
 #define TAM_TAB 100
 
 //acrescentar campos na tabela
-struct  elemTabSimbolos 
+struct elemTabSimbolos 
 {
     char id[100];   // nome do identificador   
     int end;        // endereco
     int tip;        // tipo
-    //int tam; 
-    //int pos
-    //---  campos;
+    int tam; 
+    int pos;
+    ptno listaCampos;        // essa posição se for um registro recebe uma estrutura de nós com os campos
 } tabSimb[TAM_TAB], elemTab;
 
 int posTab = 0;    // indica a próxima posição livre para inserção
@@ -97,14 +131,32 @@ void mostraTabela()
 {
     puts("Tabela de Simbolos");
     puts("------------------");
-    printf("%30s | %s | %s\n", "ID", "END", "TIP");
-    for(int i = 0; i < 50; i++)
+    printf("%30s | %s | %s | %s | %s | %s\n", "ID", "END", "TIP", "TAM", "POS", "CAMPOS");
+    for(int i = 0; i < 90; i++)
         printf("-");
-    for(int i = 0; i < posTab; i++)
-        printf("\n%30s | %3d | %s", 
+    //printf("\n%30s | %3s | %3s | %3s | %3s |", "inteiro", " -1", "INT", "1", "0");
+    //printf("\n%30s | %3s | %3s | %3s | %3s |", "logico", " -1", "LOG", "1", "1");
+    for(int i = 0; i < posTab; i++) {
+        printf("\n%30s | %3d | %s | %3d | %3d |",  
                 tabSimb[i].id,
                 tabSimb[i].end,
-                nomeTipo[tabSimb[i].tip]);
+                nomeTipo[tabSimb[i].tip],
+                tabSimb[i].tam,
+                tabSimb[i].pos
+            );
+        if(strcmp(nomeTipo[tabSimb[i].tip], "REG") == 0) {    
+            ptno temp = tabSimb[i].listaCampos;  // Usar um ponteiro temporário
+
+            while(temp) {  // Iterar sobre a lista com o ponteiro temporário
+                if(temp->prox) {
+                printf("(%s, %s, %d, %d, %d) => ", temp->id, nomeTipo[temp->tip], temp->pos, temp->desl, temp->tam);
+                } else {
+                    printf("(%s, %s, %d, %d, %d)", temp->id, nomeTipo[temp->tip], temp->pos, temp->desl, temp->tam);
+                }
+                temp = temp->prox;
+        }
+    }
+    }
     puts("");
 }
 

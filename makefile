@@ -1,6 +1,6 @@
-simples: utils.c lexico.l sintatico.y;
+simples: utils.c lexico.l sintatico2.y;
 	flex -o lexico.c lexico.l;\
-	bison -v -d sintatico.y -o sintatico.c;\
+	bison -v -d sintatico2.y -o sintatico.c;\
 	gcc sintatico.c -o simples;
 
 limpa: ;

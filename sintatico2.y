@@ -305,6 +305,7 @@ entrada
    : T_LEIA expressao_acesso
        { 
           int pos = buscaSimbolo (atomo);
+          //if ()
           // TODO #8
           // Se for registro, tem que fazer uma repetição do
           // TAM do registro de leituras
@@ -420,8 +421,20 @@ expressao
 expressao_acesso
    : T_IDPONTO
        {   //--- Primeiro nome do registro
+
+
            if (!ehRegistro) {
               ehRegistro = 1;
+              
+              int busca = buscaSimbolo(atomo);
+              if(tabSimb[busca].tip != 2) {
+                  yyerror("Registrador não encontrado");
+              } else {
+               empilha(tabSimb[busca].tam);
+               empilha(tabSimb[busca].pos);
+               empilha(tabSimb[busca].end);
+              }
+
               // TODO #12
               // 1. busca o simbolo na tabela de símbolos
               // 2. se não for do tipo registo tem erro
@@ -438,6 +451,18 @@ expressao_acesso
    | T_IDENTIF
        {   
            if (ehRegistro) {
+
+            /*
+            int buscaORegistrador = buscaSimbolo(atomo);
+
+            if(buscaORegistrador) {
+               empilha()
+            } else {
+               yyerror("Registro não encontrado na tabela de símbolos")
+            }
+            */
+            //guardar?? EMpilhar????
+
                // TODO #13
                // 1. buscar esse campo na lista de campos
                // 2. Se não encontrar, erro

@@ -26,12 +26,12 @@ typedef struct no {
     int pos;
     int desl;
     int tam;
-    struct ptno *prox;
+    ptno prox;
 };
 
 
 
-void inserir(ptno listaCampos, char id[100], int tip, int pos, int desl, int tam) {
+ptno inserir(ptno listaCampos, char id[100], int tip, int pos, int desl, int tam) {
     ptno novoNo = (ptno)malloc(sizeof(struct no));
     ptno L = listaCampos;
     strcpy(novoNo->id, id);
@@ -85,7 +85,7 @@ ptno busca (ptno L, char info) {
 #define TAM_TAB 100
 
 //acrescentar campos na tabela
-struct  elemTabSimbolos 
+struct elemTabSimbolos 
 {
     char id[100];   // nome do identificador   
     int end;        // endereco
@@ -134,9 +134,9 @@ void mostraTabela()
     printf("%30s | %s | %s | %s | %s | %s\n", "ID", "END", "TIP", "TAM", "POS", "CAMPOS");
     for(int i = 0; i < 90; i++)
         printf("-");
-    printf("\n%30s | %3s | %3s | %3s | %3s |", "inteiro", " -1", "INT", "1", "0");
-    printf("\n%30s | %3s | %3s | %3s | %3s |", "logico", " -1", "LOG", "1", "1");
-    for(int i = 0; i < posTab; i++)
+    //printf("\n%30s | %3s | %3s | %3s | %3s |", "inteiro", " -1", "INT", "1", "0");
+    //printf("\n%30s | %3s | %3s | %3s | %3s |", "logico", " -1", "LOG", "1", "1");
+    for(int i = 0; i < posTab; i++) {
         printf("\n%30s | %3d | %s | %3d | %3d |",  
                 tabSimb[i].id,
                 tabSimb[i].end,
@@ -144,6 +144,19 @@ void mostraTabela()
                 tabSimb[i].tam,
                 tabSimb[i].pos
             );
+        if(strcmp(nomeTipo[tabSimb[i].tip], "REG") == 0) {    
+            ptno temp = tabSimb[i].listaCampos;  // Usar um ponteiro temporário
+
+            while(temp) {  // Iterar sobre a lista com o ponteiro temporário
+                if(temp->prox) {
+                printf("(%s, %s, %d, %d, %d) => ", temp->id, nomeTipo[temp->tip], temp->pos, temp->desl, temp->tam);
+                } else {
+                    printf("(%s, %s, %d, %d, %d)", temp->id, nomeTipo[temp->tip], temp->pos, temp->desl, temp->tam);
+                }
+                temp = temp->prox;
+        }
+    }
+    }
     puts("");
 }
 

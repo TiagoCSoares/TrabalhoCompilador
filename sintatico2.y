@@ -427,14 +427,16 @@ expressao_acesso
 
             if (!ehRegistro) {   //aqui é a primeira vez que entra em um ehRegistro
                ehRegistro = 1;
+               des = 0;
+               tam = 0;
                buscaORegistrador = buscaSimbolo(atomo);  //aqui encontra o endereço dele na tabela, mas na verdade queremos tabSimb.pos(indicando o tipo do registro)
-               pos = tabSimb[buscaORegistrador].pos;
-               if(tabSimb[pos].tip != 2) {
+               if(tabSimb[buscaORegistrador].tip != 2) {
                    yyerror("Registrador não encontrado");
                } else {
-                  tam = tabSimb[pos].end;
-                  des = tabSimb[buscaORegistrador].end;  //deslocamento a partir do ínicio para chegar no elemento    
-
+                  tipo == 2;
+                  tam = tabSimb[buscaORegistrador].tam;
+                  //des = tabSimb[buscaORegistrador].end;  //deslocamento a partir do ínicio para chegar no elemento    
+                  pos = tabSimb[buscaORegistrador].pos;
                   busca_campo = tabSimb[pos].listaCampos;
                }
                // TODO #12
@@ -443,15 +445,16 @@ expressao_acesso
                // 3. guardar o TAM, POS e DES desse t_IDENTIF
             } else {
                busca_campo = busca(listaCampos, atomo);
-               pos = busca_campo->pos;
+               
                if (busca_campo == NULL) {
                   yyerror("Campo não encontrado");
                } else if (tabSimb[pos].tip != 2) {
                   yyerror("Não é registro");
                } else {
-
+                  tipo == 2;
                   tam += busca_campo->tam;
                   des += busca_campo->desl;
+                  pos = busca_campo->pos;
                }
               //--- Campo que eh registro
               // 1. busca esse campo na lista de campos
@@ -471,10 +474,9 @@ expressao_acesso
                } else {
                   des += busca_campo->desl;
                   tam += busca_campo->tam;
-                  tam += tabSimb[pos].end;
+                  tipo = busca_campo->tip;
+                  pos = buscaORegistrador;
                }
-               pos = des;
-               tipo = busca_campo->tip;
                // TODO #13
                // 1. buscar esse campo na lista de campos
                // 2. Se não encontrar, erro
@@ -484,13 +486,15 @@ expressao_acesso
            }
            else {
               // TODO #14
-
+               des = 0;
+               tam = 0;
               pos = buscaSimbolo (atomo);
               tam = tabSimb[pos].tam;
               tipo = tabSimb[pos].tip;
               // guardar TAM, DES e TIPO dessa variável
            }
-           ehRegistro = 0;
+            
+            ehRegistro = 0;
        };
 
 termo
@@ -505,7 +509,7 @@ termo
             }   
 
          } else {
-           fprintf(yyout, "\tCRVG\t%d\n", tabSimb[pos].end);
+           fprintf(yyout, "\tCRVG\t%d\n", tabSimb[pos].end + des);
          }  
          empilha(tipo);
        }

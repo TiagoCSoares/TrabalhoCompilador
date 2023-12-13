@@ -1,9 +1,0 @@
-programa teste4
-    inteiro a 
-inicio 
-    leia a 
-    enquanto (a + 10) > 150 faca 
-        escreva a 
-        a <- a - 10
-    fimenquanto 
-fimprograma

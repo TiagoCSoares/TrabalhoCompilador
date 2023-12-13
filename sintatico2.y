@@ -16,6 +16,7 @@ int buscaORegistrador;
 int tam; // tamanho da estrutura qdo percorre expressão de acesso
 int des = 0; // deslocamento para chegar no campo
 int pos = 0; // posicao do tipo na tabela de simbolos
+int desGlob;
 ptno listaCampos;
 ptno busca_campo;
 
@@ -307,13 +308,22 @@ entrada_saida
 entrada
    : T_LEIA expressao_acesso
        { 
-          int pos = buscaSimbolo (atomo);
-          //if ()
           // TODO #8
           // Se for registro, tem que fazer uma repetição do
           // TAM do registro de leituras
-          fprintf(yyout, "\tLEIA\n"); 
-          fprintf(yyout, "\tARZG\t%d\n", tabSimb[pos].end);
+          if(tipo == 2) {    
+            printf("tamanho: %d" ,tam);
+            printf("j:%d", j);
+            for(int i = tam-1; i >= j; i--) {
+               fprintf(yyout, "\tLEIA\n"); 
+               fprintf(yyout, "\tARZGzz\t%d\n", des);
+               des++;
+            }  } else { 
+                  fprintf(yyout, "\tLEIA\n");
+                  fprintf(yyout, "\tARZG\t%d\n", tabSimb[pos].end);
+                  des++;
+            } 
+            desGlob += des;
        }
    ;
 
@@ -326,7 +336,7 @@ saida
           // TAM do registro de escritas
           if(tipo == 2) {    
             for(int i = tam-1; i >= j; i--) {
-               fprintf(yyout, "\tESCR\t%d\n", i);
+               fprintf(yyout, "\tESCR\t\n");
             }  } else { 
                   fprintf(yyout, "\tESCR\n");
             }
@@ -354,8 +364,15 @@ atribuicao
           // TODO #11 - FEITO
           // Se for registro, tem que fazer uma repetição do
           // TAM do registro de ARZG
-          for (int i = 0; i < tam; i++)
-             fprintf(yyout, "\tARZG\t%d\n", des + i); 
+   
+         if(tipo == 2) {    
+            tam += desGlob;
+            for(desGlob; desGlob < tam; desGlob++) {
+               fprintf(yyout, "\tARZGss\t%d\n", desGlob);
+            }  } else { 
+                  fprintf(yyout, "\tARZG\t%d\n", des);
+                  desGlob++;
+            }
        }
    ;
 
@@ -512,15 +529,18 @@ termo
             if(!buscaORegistrador) {
                tam += tabSimb[pos].end;
                j = tabSimb[pos].end;
+               for(int i = tam-1; i >= j; i--) {
+                  fprintf(yyout, "\tCRVG\t%d\n", i);
+            }   
             }  else {
                tam -= des;
                tam--;
                j = tabSimb[buscaORegistrador].end;
+               for(int i = tam-1; i >= j; i--) {
+                  fprintf(yyout, "\tCRVG\t%d\n", i);
+            }   
 
             }
-            for(int i = tam-1; i >= j; i--) {
-               fprintf(yyout, "\tCRVG\t%d\n", i);
-            }   
 
          } else {
            fprintf(yyout, "\tCRVG\t%d\n", tabSimb[pos].end + des);

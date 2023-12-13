@@ -11,7 +11,7 @@ int ehRegistro = 0;
 int tipo;
 int tamReg;
 int desReg;    //    criei a variável mas pelo jeito ela substituiu a função da variável des, tomar cuidado para não gerar erros
-
+int j;
 int buscaORegistrador;
 int tam; // tamanho da estrutura qdo percorre expressão de acesso
 int des = 0; // deslocamento para chegar no campo
@@ -324,7 +324,13 @@ saida
           // TODO #9
           // Se for registro, tem que fazer uma repetição do
           // TAM do registro de escritas
-          fprintf(yyout, "\tESCR\n"); 
+          if(tipo == 2) {    
+            for(int i = tam-1; i >= j; i--) {
+               fprintf(yyout, "\tESCR\t%d\n", i);
+            }  } else { 
+                  fprintf(yyout, "\tESCR\n");
+            }
+           
       }
    ;
 
@@ -503,7 +509,6 @@ termo
          // Se for registro, tem que fazer uma repetição do
          // TAM do registro de CRVG (em ondem inversa)
          if(tipo == 2) {
-            int j;
             if(!buscaORegistrador) {
                tam += tabSimb[pos].end;
                j = tabSimb[pos].end;

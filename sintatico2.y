@@ -1,4 +1,16 @@
 %{
+
+/*+=============================================================
+| UNIFAL = U n i v e r s i d a d e F e d e r a l de A l f e n a s .
+| BACHARELADO EM CIENCIA DA COMPUTACAO.
+| Trabalho . . : R e g i s t r o e v e r i f i c a c a o de t i p o s
+| D i s c i p l i n a : T e o r i a de Linguagens e Compiladores
+| P r o f e s s o r . : Luiz Eduardo da S i l v a
+| Aluno . . . . . : Tiago Costa Soares
+| Data . . . . . . : 13/12/2023
++=============================================================*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

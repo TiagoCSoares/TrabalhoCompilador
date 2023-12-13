@@ -12,11 +12,14 @@ int tipo;
 int tamReg;
 int desReg;    //    criei a variável mas pelo jeito ela substituiu a função da variável des, tomar cuidado para não gerar erros
 
-
+int buscaORegistrador;
 int tam; // tamanho da estrutura qdo percorre expressão de acesso
 int des = 0; // deslocamento para chegar no campo
 int pos = 0; // posicao do tipo na tabela de simbolos
 ptno listaCampos;
+ptno busca_campo;
+
+
 %}
 
 %token T_PROGRAMA
@@ -422,47 +425,56 @@ expressao_acesso
    : T_IDPONTO
        {   //--- Primeiro nome do registro
 
+            if (!ehRegistro) {   //aqui é a primeira vez que entra em um ehRegistro
+               ehRegistro = 1;
+               buscaORegistrador = buscaSimbolo(atomo);  //aqui encontra o endereço dele na tabela, mas na verdade queremos tabSimb.pos(indicando o tipo do registro)
+               pos = tabSimb[buscaORegistrador].pos;
+               if(tabSimb[pos].tip != 2) {
+                   yyerror("Registrador não encontrado");
+               } else {
+                  tam = tabSimb[pos].end;
+                  des = tabSimb[buscaORegistrador].end;  //deslocamento a partir do ínicio para chegar no elemento    
 
-           if (!ehRegistro) {
-              ehRegistro = 1;
-              
-              int busca = buscaSimbolo(atomo);
-              if(tabSimb[busca].tip != 2) {
-                  yyerror("Registrador não encontrado");
-              } else {
-               empilha(tabSimb[busca].tam);
-               empilha(tabSimb[busca].pos);
-               empilha(tabSimb[busca].end);
-              }
+                  busca_campo = tabSimb[pos].listaCampos;
+               }
+               // TODO #12
+               // 1. busca o simbolo na tabela de símbolos
+               // 2. se não for do tipo registo tem erro
+               // 3. guardar o TAM, POS e DES desse t_IDENTIF
+            } else {
+               busca_campo = busca(listaCampos, atomo);
+               pos = busca_campo->pos;
+               if (busca_campo == NULL) {
+                  yyerror("Campo não encontrado");
+               } else if (tabSimb[pos].tip != 2) {
+                  yyerror("Não é registro");
+               } else {
 
-              // TODO #12
-              // 1. busca o simbolo na tabela de símbolos
-              // 2. se não for do tipo registo tem erro
-              // 3. guardar o TAM, POS e DES desse t_IDENTIF
-           } else {
+                  tam += busca_campo->tam;
+                  des += busca_campo->desl;
+               }
               //--- Campo que eh registro
               // 1. busca esse campo na lista de campos
               // 2. se não encontrar, erro
               // 3. se encontrar e não for registro, erro
               // 4. guardar o TAM, POS e DES desse CAMPO
-           }
+            }
        }
      expressao_acesso
    | T_IDENTIF
        {   
            if (ehRegistro) {
-
-            /*
-            int buscaORegistrador = buscaSimbolo(atomo);
-
-            if(buscaORegistrador) {
-               empilha()
-            } else {
-               yyerror("Registro não encontrado na tabela de símbolos")
-            }
-            */
-            //guardar?? EMpilhar????
-
+               busca_campo = tabSimb[pos].listaCampos;
+               busca_campo = busca(busca_campo, atomo);
+               if(busca_campo == NULL) {
+                  yyerror("Campos não encontrado!");
+               } else {
+                  des += busca_campo->desl;
+                  tam += busca_campo->tam;
+                  tam += tabSimb[pos].end;
+               }
+               pos = des;
+               tipo = busca_campo->tip;
                // TODO #13
                // 1. buscar esse campo na lista de campos
                // 2. Se não encontrar, erro
@@ -472,7 +484,10 @@ expressao_acesso
            }
            else {
               // TODO #14
-              int pos = buscaSimbolo (atomo);
+
+              pos = buscaSimbolo (atomo);
+              tam = tabSimb[pos].tam;
+              tipo = tabSimb[pos].tip;
               // guardar TAM, DES e TIPO dessa variável
            }
            ehRegistro = 0;
@@ -481,11 +496,18 @@ expressao_acesso
 termo
    : expressao_acesso
        {
-          // TODO #15
-          // Se for registro, tem que fazer uma repetição do
-          // TAM do registro de CRVG (em ondem inversa)
-          fprintf(yyout, "\tCRVG\t%d\n", tabSimb[pos].end);  
-          empilha(tipo);
+         // TODO #15
+         // Se for registro, tem que fazer uma repetição do
+         // TAM do registro de CRVG (em ondem inversa)
+         if(tipo == 2) {
+            for(int i = tam-1; i >= 0; i--) {
+               fprintf(yyout, "\tCRVG\t%d\n", i);
+            }   
+
+         } else {
+           fprintf(yyout, "\tCRVG\t%d\n", tabSimb[pos].end);
+         }  
+         empilha(tipo);
        }
    | T_NUMERO
        {  

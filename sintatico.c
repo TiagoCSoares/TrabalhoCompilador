@@ -582,7 +582,7 @@ static const yytype_int16 yyrline[] =
      248,   252,   272,   291,   292,   296,   297,   298,   299,   303,
      304,   308,   321,   333,   332,   358,   366,   357,   381,   386,
      380,   403,   405,   407,   409,   411,   413,   415,   417,   419,
-     421,   426,   425,   467,   501,   516,   521,   526,   531,   539
+     421,   426,   425,   466,   500,   526,   531,   536,   541,   549
 };
 #endif
 
@@ -1648,7 +1648,6 @@ yyreduce:
                // 3. guardar o TAM, POS e DES desse t_IDENTIF
             } else {
                busca_campo = busca(listaCampos, atomo);
-               
                if (busca_campo == NULL) {
                   yyerror("Campo não encontrado");
                } else if (tabSimb[pos].tip != 2) {
@@ -1666,11 +1665,11 @@ yyreduce:
               // 4. guardar o TAM, POS e DES desse CAMPO
             }
        }
-#line 1670 "sintatico.c"
+#line 1669 "sintatico.c"
     break;
 
   case 53: /* expressao_acesso: T_IDENTIF  */
-#line 468 "sintatico2.y"
+#line 467 "sintatico2.y"
        {   
            if (ehRegistro) {
                busca_campo = tabSimb[pos].listaCampos;
@@ -1694,65 +1693,76 @@ yyreduce:
               // TODO #14
                des = 0;
                tam = 0;
-              pos = buscaSimbolo (atomo);
-              tam = tabSimb[pos].tam;
-              tipo = tabSimb[pos].tip;
-              // guardar TAM, DES e TIPO dessa variável
+               pos = buscaSimbolo (atomo);
+               tam = tabSimb[pos].tam;
+               tipo = tabSimb[pos].tip;
+               // guardar TAM, DES e TIPO dessa variável
            }
             
-            ehRegistro = 0;
+         ehRegistro = 0;
        }
-#line 1706 "sintatico.c"
+#line 1705 "sintatico.c"
     break;
 
   case 54: /* termo: expressao_acesso  */
-#line 502 "sintatico2.y"
+#line 501 "sintatico2.y"
        {
          // TODO #15
          // Se for registro, tem que fazer uma repetição do
          // TAM do registro de CRVG (em ondem inversa)
          if(tipo == 2) {
-            for(int i = tam-1; i >= 0; i--) {
+            int j;
+            if(!buscaORegistrador) {
+               tam += tabSimb[pos].end;
+               j = tabSimb[pos].end;
+            }  else {
+               tam -= des;
+               tam--;
+               j = tabSimb[buscaORegistrador].end;
+
+            }
+            for(int i = tam-1; i >= j; i--) {
                fprintf(yyout, "\tCRVG\t%d\n", i);
             }   
 
          } else {
            fprintf(yyout, "\tCRVG\t%d\n", tabSimb[pos].end + des);
          }  
+         buscaORegistrador = 0;
          empilha(tipo);
        }
-#line 1725 "sintatico.c"
+#line 1735 "sintatico.c"
     break;
 
   case 55: /* termo: T_NUMERO  */
-#line 517 "sintatico2.y"
+#line 527 "sintatico2.y"
        {  
           fprintf(yyout, "\tCRCT\t%s\n", atomo);  
           empilha(INT);
        }
-#line 1734 "sintatico.c"
+#line 1744 "sintatico.c"
     break;
 
   case 56: /* termo: T_V  */
-#line 522 "sintatico2.y"
+#line 532 "sintatico2.y"
        {  
           fprintf(yyout, "\tCRCT\t1\n");
           empilha(LOG);
        }
-#line 1743 "sintatico.c"
+#line 1753 "sintatico.c"
     break;
 
   case 57: /* termo: T_F  */
-#line 527 "sintatico2.y"
+#line 537 "sintatico2.y"
        {  
           fprintf(yyout, "\tCRCT\t0\n"); 
           empilha(LOG);
        }
-#line 1752 "sintatico.c"
+#line 1762 "sintatico.c"
     break;
 
   case 58: /* termo: T_NAO termo  */
-#line 532 "sintatico2.y"
+#line 542 "sintatico2.y"
        {  
           int t = desempilha();
           if (t != LOG)
@@ -1760,11 +1770,11 @@ yyreduce:
           fprintf(yyout, "\tNEGA\n");
           empilha(LOG);
        }
-#line 1764 "sintatico.c"
+#line 1774 "sintatico.c"
     break;
 
 
-#line 1768 "sintatico.c"
+#line 1778 "sintatico.c"
 
       default: break;
     }
@@ -1957,7 +1967,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 541 "sintatico2.y"
+#line 551 "sintatico2.y"
 
 
 int main(int argc, char *argv[]) {

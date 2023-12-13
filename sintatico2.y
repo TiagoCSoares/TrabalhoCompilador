@@ -445,7 +445,6 @@ expressao_acesso
                // 3. guardar o TAM, POS e DES desse t_IDENTIF
             } else {
                busca_campo = busca(listaCampos, atomo);
-               
                if (busca_campo == NULL) {
                   yyerror("Campo não encontrado");
                } else if (tabSimb[pos].tip != 2) {
@@ -488,13 +487,13 @@ expressao_acesso
               // TODO #14
                des = 0;
                tam = 0;
-              pos = buscaSimbolo (atomo);
-              tam = tabSimb[pos].tam;
-              tipo = tabSimb[pos].tip;
-              // guardar TAM, DES e TIPO dessa variável
+               pos = buscaSimbolo (atomo);
+               tam = tabSimb[pos].tam;
+               tipo = tabSimb[pos].tip;
+               // guardar TAM, DES e TIPO dessa variável
            }
             
-            ehRegistro = 0;
+         ehRegistro = 0;
        };
 
 termo
@@ -504,13 +503,24 @@ termo
          // Se for registro, tem que fazer uma repetição do
          // TAM do registro de CRVG (em ondem inversa)
          if(tipo == 2) {
-            for(int i = tam-1; i >= 0; i--) {
+            int j;
+            if(!buscaORegistrador) {
+               tam += tabSimb[pos].end;
+               j = tabSimb[pos].end;
+            }  else {
+               tam -= des;
+               tam--;
+               j = tabSimb[buscaORegistrador].end;
+
+            }
+            for(int i = tam-1; i >= j; i--) {
                fprintf(yyout, "\tCRVG\t%d\n", i);
             }   
 
          } else {
            fprintf(yyout, "\tCRVG\t%d\n", tabSimb[pos].end + des);
          }  
+         buscaORegistrador = 0;
          empilha(tipo);
        }
    | T_NUMERO
